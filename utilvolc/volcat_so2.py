@@ -52,6 +52,15 @@ class volcatSO2L3:
         cb = plt.pcolormesh(vals)
         plt.colorbar(cb)
 
+#start
+#    def plotpolygon(self):
+    
+
+
+#    geotools.plotpoly(AAAA[0])
+#    for y, x in geotools.plotpoly(AAAA[0]): plt.plot(x,y)
+
+#end bs
 
     def get_points_alt(self):
         self.mass = self.dset.mass_loading_mean
