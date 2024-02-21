@@ -382,7 +382,7 @@ def plume_thick_cal(df):
 
     return(df_dist_min, df_dist_min_criteria_pass, critera_pass_traj_num)
 
-# This function was modified by a dynamic method of selecting the cutoff, 12/05/2023
+# This function was modified by a dynamic method of selecting the cutoff, 02/21/2023
 def conc_emitimes_data(df):
     """"
     This function prepares the characteristics of plume emission for EMITIMES needed for forward dispersion run.
@@ -465,7 +465,7 @@ def conc_emitimes_data(df):
 
     return(df_dist_fwd_data, df_dist_fwd)
 
-# This function was modified by a dynamic method of selecting the cutoff, 12/05/2023
+# This function was modified by a dynamic method of selecting the cutoff, 02/21/2023
 def conc_emitimes_data_raw(df):
     """"
     This function prepares the characteristics of plume emission for EMITIMES needed for forward dispersion run.
