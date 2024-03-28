@@ -34,16 +34,37 @@ from utilhysplit.hcontrol import NameList
 logger = logging.getLogger(__name__)
 
 
+def name2job(control_name):
+    temp = control_name.splite('/')
+    temp = temp[-1]
+    temp = temp.split('.')
+    suffix = temp[-1]
+    temp = suffix.split('_')
+    jobname = temp[0]
+    jobid = temp[1]
+    if len(temp)>=3:
+       ensemble_id = temp[2]
+    else:
+       ensemble_id = None
+    return Job(jobid,jobname,ensemble_id) 
+
+
 class Job:
-    def __init__(self, JOBID, jobname):
+    def __init__(self, JOBID, jobname, ensemble_id=None):
         self.JOBID = JOBID  # created for each HYSPLIT run
         self.name = jobname  # indicates what event the run belongs to.
+        self.ensemble_id=ensemble_id #indicates ensemble member
 
     def __str__(self):
-        return "{}_{}".format(self.name, self.JOBID)
+        if isinstance(self.ensemble_id,(str,float,int)):
+            return "{}_{}_{}".format(self.name,self.JOBID,self.ensemble_id)
+        else:
+            return "{}_{}".format(self.name, self.JOBID)
 
     def __repr__(self):
-        return "{}_{}".format(self.name, self.JOBID)
+        if isinstance(ensemble_id,(str,float,int)):
+            return "{}_{}".format(self.name, self.JOBID)
+            return "{}_{}".format(self.name, self.JOBID)
 
 
 def read_suffix(self, fnamestr):

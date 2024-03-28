@@ -27,6 +27,7 @@ from ashapp.runtrajectory import RunTrajectory
 from ashapp.collecttraj import CollectTrajectory
 from ashapp.outputtrajectory import OutputTrajectory
 from ashapp.graphicstrajectory import GraphicsTrajectory
+from ashapp.graphicsdummy import GraphicsDummy
 from utilvolc.runhelper import complicated2str, is_input_complete
 from ashapp.utildatainsertion import EmitFileFinder, DetEmitFileFinder
 
@@ -301,7 +302,8 @@ class MainInverse(MainDispersion):
         inp["Use_Mastin_eq"] = False
         inp["fraction_of_fine_ash"] = 1
         self._modeloutput = OutputDispersion(inp, [])
-        self._modelgraphics = GraphicsInverse(inp)
+
+        self._modelgraphics = GraphicsDummy(inp)
 
         utils.setup_logger()
 

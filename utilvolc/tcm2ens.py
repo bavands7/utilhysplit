@@ -4,6 +4,10 @@ import numpy as np
 import xarray as xr
 from utilvolc import volcMER
 
+# take a tcm matrix and create a source term ensemble.
+
+
+
 def sval2info(sval,year):
     temp = sval.split('_')
     ht = int(temp[-1])
@@ -18,7 +22,7 @@ def sval2info(sval,year):
 class SourceEns:
 
     def __init__(self, tcmra):
-        sources = tcmra.source.values
+        self.sources = tcmra.source.values
         self.tcmra = tcmra       
  
     @property

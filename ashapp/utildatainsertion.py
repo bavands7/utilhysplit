@@ -8,7 +8,7 @@ import pandas as pd
 from utilhysplit.emitimes import EmiTimes
 
 from utilvolc import make_data_insertion as mdi
-from filenamer import AshDINameComposer
+from ashapp.filenamer import AshDINameComposer
 
 logger = logging.getLogger(__name__)
 

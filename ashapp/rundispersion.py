@@ -28,7 +28,7 @@ import numpy as np
 from utilhysplit import hcontrol
 from utilhysplit.metfiles import MetFileFinder
 from utilvolc.runhelper import is_input_complete, Helper
-from filenamer import  JobFileNameComposer
+from ashapp.filenamer import  JobFileNameComposer
 from ashapp.ashruninterface import ModelRunInterface
 from ashapp.level_setter import get_levelsetter
 
@@ -112,7 +112,7 @@ class RunDispersion(ModelRunInterface):
         self._metfilefinder.set_archives_directory(inp["archivesDirectory"])
   
         self._levelsetter = get_levelsetter(self.inp)
-        print('LEVELS', self._levelsetter.levlist)
+        print('bbb LEVELS', self._levelsetter.levlist)
 
         # self._filehash and self_filelist are
         # set in the filelocator setter method.

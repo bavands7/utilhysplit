@@ -25,7 +25,7 @@ import requests
 import xarray as xr
 
 from utilvolc.runhelper import Helper
-from filenamer import  JobFileNameComposer
+from ashapp.filenamer import  JobFileNameComposer
 from ashapp.ashruninterface import ModelOutputInterface
 import ashapp.plotting_functions as plotf
 
