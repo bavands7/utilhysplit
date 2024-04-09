@@ -277,6 +277,7 @@ def plume_thick_cal(df, cutoff):
 
     return(df_dist_min, df_dist_min_criteria_pass, critera_pass_traj_num)
 
+
 # This function was modified by a dynamic method of selecting the cutoff, 02/21/2023
 def conc_emitimes_data(df):
     """"
