@@ -30,8 +30,7 @@ from sklearn.cluster import KMeans
 
 
 """
-This function reads the VOLCAT data and performs K-Means clustering that partition a dataset into "K"
-non-overlapping clusters.
+This function reads the VOLCAT data and performs K-Means clustering that partition a dataset into "K" non-overlapping clusters.
 """
 def volcat_kmeans_clustering(vname, num_samples, time_obs_threshold):
     """
