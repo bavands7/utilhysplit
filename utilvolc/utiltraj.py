@@ -4,7 +4,6 @@ import datetime
 import math
 import sys
 import glob
-import datetime
 import monet
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -27,6 +26,7 @@ from utilhysplit import geotools
 from utilvolc.make_data_insertion import make_1D_sub, EmitName
 
 from sklearn.cluster import KMeans
+#import emitimes
 
 """
 The functions are tested by Bavand on 04/19/2024
@@ -35,11 +35,10 @@ The functions are tested by Bavand on 04/19/2024
 """
 This function reads the VOLCAT data and performs K-Means clustering that partition a dataset into "K" non-overlapping clusters.
 """
-def volcat_kmeans_clustering(vname, num_samples, time_obs_threshold):
+def volcat_kmeans_clustering(vname, num_samples):
     """
     vname: the path of the VOLCAT retrieval data.
     num_samples: number of samples that we seek to transform the total observations into. # of clusters.
-    time_obs_threshold: minimum count of measurements for each time period.
 
     output: sample_df, sample data, is like a summary of the original data, showing the average characteristics of each group identified by the K-Means algorithm. 
     """
@@ -48,17 +47,24 @@ def volcat_kmeans_clustering(vname, num_samples, time_obs_threshold):
     vframe = fixlondf(vvolc.points2frame(), colname='lon',neg=False)
     vframe_df = vframe[['lat', 'lon', 'massI', 'heightI', 'time']]
     vframe_df.rename(columns={"massI": "mass", "heightI": "height"}, inplace = True)
+    # exclude the NaN values from the observation dataframe
     vframe_df = vframe_df.dropna(subset=['height','mass'])
+    # sort the dataframe with time of measurements from early hours to late hours
     vframe_df = vframe_df.sort_values(by='time', ascending=True)
 
     # count the number of observations at each distinct time
     time_counts = vframe_df['time'].value_counts()
 
     # exclude times with observation counts below the threshold
-    exclude_times = [str(time) for time in time_counts[time_counts < time_obs_threshold].index]
+#    exclude_times = [str(time) for time in time_counts[time_counts < (len(vframe_df)/num_samples)].index]
+
+    exclude_times = [str(time) for time in time_counts[time_counts < int(len(vframe_df)/num_samples)].index]
+
+
     df_filtered = vframe_df[~vframe_df['time'].isin(exclude_times)]
 
-    sample_df = pd.DataFrame(columns=['lat', 'lon', 'mass', 'height', 'time'])
+    #sample_df = pd.DataFrame(columns=['lat', 'lon', 'mass', 'height', 'time'])
+    sample_df = []
 
     # perform clustering
     for distinct_time in df_filtered['time'].unique():
@@ -85,15 +91,15 @@ def volcat_kmeans_clustering(vname, num_samples, time_obs_threshold):
             weighted_count = cluster_counts[cluster_id]
             weighted_height = cluster_centers[cluster_id, 2]
 
-            sample_df = sample_df.append({
+            sample_df.append({
                 'lat': weighted_lat,
                 'lon': weighted_lon,
                 'mass': total_mass,
                 'count': weighted_count,
                 'height': weighted_height,
                 'time': distinct_time,
-            }, ignore_index=True)
-
+            })
+    sample_df = pd.DataFrame(sample_df)
     return sample_df
 
 
@@ -402,5 +408,64 @@ def frwd_data_ctrl(df,cutoff):
         df_dist_fwd_data = pd.concat([df_dist_fwd_data, df_dist_fwd[i]])
 
     return(df_dist_fwd_data, df_dist_fwd)
+
+""""
+This function writes the EMITIMES for forward run using data insertion with back trajectory.
+"""
+def emitimes_traj(fwd_data, duration_iden1, duration_iden2, year, month, day, hour):
+
+    efile     = emitimes.EmiTimes(filename = 'EMITIMES_DATAINSERTION_TRAJ')
+    dt1       = datetime.timedelta(hours=1)
+    d0 = datetime.datetime(year, month, day, hour)
+    efile.add_cycle(d0, duration_iden1)
+    heat      = 0
+    species   = 1
+    for ii in range(len(fwd_data)):
+        d1    = datetime.datetime(fwd_data[ii]['YYYY'].iloc[0], fwd_data[ii]['MM'].iloc[0],
+                fwd_data[ii]['DD'].iloc[0], fwd_data[ii]['HH'].iloc[0],
+                fwd_data[ii]['MIN'].iloc[0])
+        lat   = fwd_data[ii]['obs_lat'].iloc[0]
+        lon   = fwd_data[ii]['obs_lon'].iloc[0]
+        ht    = fwd_data[ii]['init_alt']
+        rate  = fwd_data[ii]['rate'].iloc[0]
+        area  = (fwd_data[ii]['obs_count'].iloc[0])*25000000
+        for jj in range(len(fwd_data[ii]['obs_lat'])):
+            if (jj % 2) == 0:
+                efile.add_record(d1, duration_iden2, lat, lon, ht.iloc[jj], rate, area, heat, species)
+                efile.add_record(d1, duration_iden2, lat, lon, ht.iloc[jj]+1000, rate, area, heat, species)
+            else:
+                efile.add_record(d1, duration_iden2, lat + 0.001, lon, ht.iloc[jj], rate, area, heat, species)
+                efile.add_record(d1, duration_iden2, lat + 0.001, lon, ht.iloc[jj]+1000, rate, area, heat, species)
+    efile.write_new(filename='EMITIMES_DATAINSERTION_TRAJ')
+
+""""
+This function writes the EMITIMES for forward run using controlled data insertion.
+"""
+def emitimes_ctrl(fwd_data, duration_iden1, duration_iden2, year, month, day, hour):
+
+    efile     = emitimes.EmiTimes(filename = 'EMITIMES_DATAINSERTION_CTRL')
+    dt1       = datetime.timedelta(hours=1)
+    d0 = datetime.datetime(year, month, day, hour)
+    efile.add_cycle(d0, duration_iden1)
+    heat      = 0
+    species   = 1
+    for ii in range(len(fwd_data)):
+        d1    = datetime.datetime(fwd_data[ii]['YYYY'].iloc[0], fwd_data[ii]['MM'].iloc[0],
+                fwd_data[ii]['DD'].iloc[0], fwd_data[ii]['HH'].iloc[0],
+                fwd_data[ii]['MIN'].iloc[0])
+        lat   = fwd_data[ii]['obs_lat'].iloc[0]
+        lon   = fwd_data[ii]['obs_lon'].iloc[0]
+        ht    = fwd_data[ii]['obs_height']
+        rate  = fwd_data[ii]['rate'].iloc[0]
+        area  = (fwd_data[ii]['obs_count'].iloc[0])*25000000
+        for jj in range(len(fwd_data[ii]['obs_lat'])):
+            if (jj % 2) == 0:
+                efile.add_record(d1, duration_iden2, lat, lon, ht.iloc[jj], rate, area, heat, species)
+                efile.add_record(d1, duration_iden2, lat, lon, ht.iloc[jj]+1000, rate, area, heat, species)
+            else:
+                efile.add_record(d1, duration_iden2, lat + 0.001, lon, ht.iloc[jj], rate, area, heat, species)
+                efile.add_record(d1, duration_iden2, lat + 0.001, lon, ht.iloc[jj]+1000, rate, area, heat, species)
+    efile.write_new(filename='EMITIMES_DATAINSERTION_CTRL')
+
 
 
