@@ -28,6 +28,9 @@ from utilvolc.make_data_insertion import make_1D_sub, EmitName
 
 from sklearn.cluster import KMeans
 
+"""
+The functions are tested by Bavand on 04/19/2024
+"""
 
 """
 This function reads the VOLCAT data and performs K-Means clustering that partition a dataset into "K" non-overlapping clusters.
